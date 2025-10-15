@@ -1,4 +1,4 @@
-package com.example.nasaplanets
+package com.example.ricknmortycharacters
 
 import org.junit.Test
 

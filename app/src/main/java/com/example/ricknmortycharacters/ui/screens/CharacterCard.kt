@@ -1,4 +1,4 @@
-package com.example.nasaplanets.ui.screens
+package com.example.ricknmortycharacters.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -14,10 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.example.nasaplanets.R
+import com.example.ricknmortycharacters.R
 
 @Composable
-fun PlanetCard(planetName: String, modifier: Modifier = Modifier) {
+fun CharacterCard(characterName: String, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier.padding(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
@@ -27,7 +27,7 @@ fun PlanetCard(planetName: String, modifier: Modifier = Modifier) {
         Column {
             Image(
                 painter = painterResource(id = R.drawable.planetx),
-                contentDescription = "Planet Image",
+                contentDescription = "Character Image",
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(1f),
@@ -35,7 +35,7 @@ fun PlanetCard(planetName: String, modifier: Modifier = Modifier) {
             )
 
             Text(
-                text = planetName,
+                text = characterName,
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(8.dp)
             )

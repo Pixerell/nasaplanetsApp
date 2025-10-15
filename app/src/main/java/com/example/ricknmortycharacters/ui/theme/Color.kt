@@ -1,4 +1,4 @@
-package com.example.nasaplanets.ui.theme
+package com.example.ricknmortycharacters.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.nasaplanets"
+    namespace = "com.example.ricknmortycharacters"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.nasaplanets"
+        applicationId = "com.example.ricknmortycharacters"
         minSdk = 29
         targetSdk = 36
         versionCode = 1
