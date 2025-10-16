@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.activity.viewModels
 import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,8 +20,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.ricknmortycharacters.ui.FilterSheet
-import com.example.ricknmortycharacters.ui.TopBar
+import com.example.ricknmortycharacters.ui.components.FilterSheet
+import com.example.ricknmortycharacters.ui.screens.TopBar
 import com.example.ricknmortycharacters.ui.screens.CharacterDetailScreen
 import com.example.ricknmortycharacters.ui.screens.CharactersScreen
 import com.example.ricknmortycharacters.ui.viewmodels.CharactersViewModel
@@ -41,6 +42,10 @@ class MainActivity : ComponentActivity() {
             var showFilters by remember { mutableStateOf(false) }
             var activeFilter by remember { mutableStateOf<String?>(null) }
 
+            // Fetch characters once when the screen is first composed
+            LaunchedEffect(Unit) {
+                viewModel.fetch(page = 1)
+            }
 
             MaterialTheme(
                 colorScheme = colors,
@@ -82,15 +87,16 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(padding)
                     ) {
                         composable(CHARACTERROUTE) {
-                            CharactersScreen(viewModel = viewModel, onCharacterClick = { character ->
-                                navController.navigate("details/$character")
+                            CharactersScreen(viewModel = viewModel, onCharacterClick = {characterId ->
+                                navController.navigate("details/$characterId")
                             })
                         }
                         composable(
-                            route = "details/{charname}",
-                            arguments = listOf(navArgument("charname") { type = NavType.StringType })
+                            route = "details/{charId}",
+                            arguments = listOf(navArgument("charId") { type = NavType.IntType })
                         ) { backStackEntry ->
-                            CharacterDetailScreen(backStackEntry.arguments?.getString("charname") ?: "")
+                            val id = backStackEntry.arguments?.getInt("charId") ?: 0
+                            CharacterDetailScreen(characterId = id)
                         }
                     }
                 }

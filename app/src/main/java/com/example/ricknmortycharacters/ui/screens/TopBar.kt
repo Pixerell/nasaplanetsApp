@@ -1,4 +1,4 @@
-package com.example.ricknmortycharacters.ui
+package com.example.ricknmortycharacters.ui.screens
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons

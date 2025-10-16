@@ -65,5 +65,7 @@ dependencies {
     implementation(libs.okhttp.logging)
     implementation(libs.moshi)
     implementation(libs.navigation.compose)
+    implementation(libs.moshi.kotlin)
+    implementation(libs.coil.compose)
 
 }
