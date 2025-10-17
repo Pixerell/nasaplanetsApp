@@ -1,6 +1,5 @@
 package com.example.ricknmortycharacters.ui.screens
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -23,7 +22,6 @@ fun CharacterDetailScreen(characterId: Int, viewModel: CharacterDetailViewModel 
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
 
-    Log.d("Charactersdetails", "${character}")
     LaunchedEffect(characterId) {
         viewModel.fetchById(characterId)
     }

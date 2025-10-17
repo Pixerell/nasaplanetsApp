@@ -1,4 +1,7 @@
-package com.example.ricknmortycharacters.data.api
+package com.example.ricknmortycharacters.data.db
+
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
 data class CharacterResponse(
     val info: Info,
@@ -12,8 +15,9 @@ data class Info(
     val prev: String?
 )
 
+@Entity(tableName = "characters")
 data class CartoonCharacter(
-    val id: Int,
+    @PrimaryKey val id: Int,
     val name: String,
     val status: String,
     val species: String,
@@ -24,7 +28,8 @@ data class CartoonCharacter(
     val image: String,
     val episode: List<String>,
     val url: String,
-    val created: String
+    val created: String,
+    val page: Int = 0
 )
 
 data class LocationRef(

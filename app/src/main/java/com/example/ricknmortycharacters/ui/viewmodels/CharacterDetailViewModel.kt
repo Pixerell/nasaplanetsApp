@@ -4,11 +4,20 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import androidx.lifecycle.viewModelScope
-import com.example.ricknmortycharacters.data.api.CartoonCharacter
+import com.example.ricknmortycharacters.data.db.CartoonCharacter
 import com.example.ricknmortycharacters.data.api.RetrofitClient
+import com.example.ricknmortycharacters.data.db.CharacterDao
+import com.example.ricknmortycharacters.domain.NetworkUtils
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class CharacterDetailViewModel : ViewModel() {
+@HiltViewModel
+class CharacterDetailViewModel @Inject constructor(
+    private val dao: CharacterDao,
+    private val networkutil: NetworkUtils
+) : ViewModel() {
+
     private val api = RetrofitClient.api
 
     private val _character = MutableStateFlow<CartoonCharacter?>(null)
@@ -20,19 +29,24 @@ class CharacterDetailViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-    fun fetchById(id: Int) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _error.value = null
-            try {
-                val result = api.getCharacter(id)
-                _character.value = result
-            } catch (e: Exception) {
-                _error.value = e.message ?: "Unknown error"
-                _character.value = null
-            } finally {
-                _isLoading.value = false
+    fun fetchById(id: Int) = viewModelScope.launch {
+        _isLoading.value = true
+        _error.value = null
+
+        try {
+
+            val character = if (networkutil.isOnline()) {
+                api.getCharacter(id).also { dao.insertCharacter(it) }
+            } else {
+                dao.getCharacterById(id)
             }
+            _character.value = character
+        } catch (e: Exception) {
+            _error.value = e.localizedMessage
+            // fallback to Room
+            dao.getCharacterById(id)?.let { _character.value = it }
+        } finally {
+            _isLoading.value = false
         }
     }
 }

@@ -46,42 +46,51 @@ fun CharactersScreen(
                     .wrapContentSize(Alignment.Center)
             )
         }
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(8.dp),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            items(characters) { cartoonCharacter ->
-                CharacterCard(
-                    cartoonCharacter = cartoonCharacter,
-                    modifier = Modifier.clickable { onCharacterClick(cartoonCharacter.id) }
-                )
-            }
+        else if (characters.isEmpty() && currentPage <= 1) {
+            Text(
+                text = "No characters found",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentSize(Alignment.Center)
+            )
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                contentPadding = PaddingValues(8.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(characters) { cartoonCharacter ->
+                    CharacterCard(
+                        cartoonCharacter = cartoonCharacter,
+                        modifier = Modifier.clickable { onCharacterClick(cartoonCharacter.id) }
+                    )
+                }
 
-            // Pagination row at the bottom
-            item(span = { GridItemSpan(this.maxLineSpan) }) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Button(
-                        onClick = { viewModel.previousPage() },
-                        enabled = currentPage > 1
-                    ) { Text("<") }
+                // Pagination row at the bottom
+                item(span = { GridItemSpan(this.maxLineSpan) }) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            onClick = { viewModel.previousPage() },
+                            enabled = currentPage > 1
+                        ) { Text("<") }
 
-                    Spacer(modifier = Modifier.width(16.dp))
+                        Spacer(modifier = Modifier.width(16.dp))
 
-                    Text("Page $currentPage of $totalPages")
+                        Text("Page $currentPage of $totalPages")
 
-                    Spacer(modifier = Modifier.width(16.dp))
+                        Spacer(modifier = Modifier.width(16.dp))
 
-                    Button(
-                        onClick = { viewModel.nextPage() },
-                        enabled = currentPage < totalPages
-                    ) { Text(">") }
+                        Button(
+                            onClick = { viewModel.nextPage() },
+                            enabled = currentPage < totalPages
+                        ) { Text(">") }
+                    }
                 }
             }
         }

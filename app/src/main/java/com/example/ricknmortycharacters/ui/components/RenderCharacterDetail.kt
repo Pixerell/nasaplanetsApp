@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.ricknmortycharacters.data.api.CartoonCharacter
+import com.example.ricknmortycharacters.data.db.CartoonCharacter
 import com.example.ricknmortycharacters.domain.formatCreated
 import com.example.ricknmortycharacters.domain.getStatusColor
 

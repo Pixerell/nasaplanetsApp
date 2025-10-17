@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    kotlin("kapt")
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -37,6 +39,15 @@ android {
     buildFeatures {
         compose = true
     }
+
+}
+
+configurations.all {
+    exclude(group = "com.intellij", module = "annotations")
+}
+
+hilt {
+    enableAggregatingTask = false
 }
 
 dependencies {
@@ -59,7 +70,6 @@ dependencies {
 
     implementation(libs.material.icons.extended)
 
-
     implementation(libs.retrofit)
     implementation(libs.converter.moshi)
     implementation(libs.okhttp.logging)
@@ -68,4 +78,11 @@ dependencies {
     implementation(libs.moshi.kotlin)
     implementation(libs.coil.compose)
 
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    kapt(libs.androidx.room.compiler)
+
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+    implementation(libs.hilt.navigation.compose)
 }

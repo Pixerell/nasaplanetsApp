@@ -1,5 +1,7 @@
 package com.example.ricknmortycharacters.data.api
 
+import com.example.ricknmortycharacters.data.db.CartoonCharacter
+import com.example.ricknmortycharacters.data.db.CharacterResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
