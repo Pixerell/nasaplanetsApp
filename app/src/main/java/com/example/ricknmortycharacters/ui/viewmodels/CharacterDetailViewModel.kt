@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import androidx.lifecycle.viewModelScope
 import com.example.ricknmortycharacters.data.db.CartoonCharacter
-import com.example.ricknmortycharacters.data.api.RetrofitClient
+import com.example.ricknmortycharacters.data.api.RickAndMortyApi
 import com.example.ricknmortycharacters.data.db.CharacterDao
 import com.example.ricknmortycharacters.domain.NetworkUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,10 +15,9 @@ import javax.inject.Inject
 @HiltViewModel
 class CharacterDetailViewModel @Inject constructor(
     private val dao: CharacterDao,
-    private val networkutil: NetworkUtils
+    private val networkUtils: NetworkUtils,
+    private val api: RickAndMortyApi
 ) : ViewModel() {
-
-    private val api = RetrofitClient.api
 
     private val _character = MutableStateFlow<CartoonCharacter?>(null)
     val character: StateFlow<CartoonCharacter?> = _character
@@ -34,19 +33,30 @@ class CharacterDetailViewModel @Inject constructor(
         _error.value = null
 
         try {
-
-            val character = if (networkutil.isOnline()) {
-                api.getCharacter(id).also { dao.insertCharacter(it) }
+            val character = if (networkUtils.isOnline()) {
+                fetchFromApi(id)
             } else {
-                dao.getCharacterById(id)
+                fetchFromDatabase(id)
             }
             _character.value = character
         } catch (e: Exception) {
-            _error.value = e.localizedMessage
-            // fallback to Room
-            dao.getCharacterById(id)?.let { _character.value = it }
+            handleError(e, id)
         } finally {
             _isLoading.value = false
         }
+    }
+
+    private suspend fun fetchFromApi(id: Int): CartoonCharacter {
+        return api.getCharacter(id).also { dao.insertCharacter(it) }
+    }
+
+    private suspend fun fetchFromDatabase(id: Int): CartoonCharacter? {
+        return dao.getCharacterById(id)
+    }
+
+    private suspend fun handleError(e: Exception, id: Int) {
+        _error.value = e.localizedMessage ?: "Unknown error occurred"
+        // Fallback to database
+        fetchFromDatabase(id)?.let { _character.value = it }
     }
 }

@@ -40,5 +40,6 @@ data class LocationRef(
 data class CharacterFilter(
     val status: String? = null,
     val gender: String? = null,
-    val name: String? = null
+    val name: String? = null,
+    val species: String? = null,
 )

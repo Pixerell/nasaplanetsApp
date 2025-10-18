@@ -56,8 +56,6 @@ fun CharacterCard(cartoonCharacter: CartoonCharacter, modifier: Modifier = Modif
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
-
-
             }
         }
     }

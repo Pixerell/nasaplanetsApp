@@ -1,21 +1,14 @@
 package com.example.ricknmortycharacters.ui.screens
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +19,7 @@ import com.example.ricknmortycharacters.ui.viewmodels.CharactersViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import com.example.ricknmortycharacters.ui.components.CharacterCard
+import com.example.ricknmortycharacters.ui.components.PaginationRow
 
 @Composable
 fun CharactersScreen(
@@ -45,8 +39,7 @@ fun CharactersScreen(
                     .fillMaxSize()
                     .wrapContentSize(Alignment.Center)
             )
-        }
-        else if (characters.isEmpty() && currentPage <= 1) {
+        } else if (characters.isEmpty() && currentPage <= 1) {
             Text(
                 text = "No characters found",
                 modifier = Modifier
@@ -66,31 +59,13 @@ fun CharactersScreen(
                     )
                 }
 
-                // Pagination row at the bottom
                 item(span = { GridItemSpan(this.maxLineSpan) }) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Button(
-                            onClick = { viewModel.previousPage() },
-                            enabled = currentPage > 1
-                        ) { Text("<") }
-
-                        Spacer(modifier = Modifier.width(16.dp))
-
-                        Text("Page $currentPage of $totalPages")
-
-                        Spacer(modifier = Modifier.width(16.dp))
-
-                        Button(
-                            onClick = { viewModel.nextPage() },
-                            enabled = currentPage < totalPages
-                        ) { Text(">") }
-                    }
+                    PaginationRow(
+                        currentPage = currentPage,
+                        totalPages = totalPages,
+                        onPreviousPage = { viewModel.previousPage() },
+                        onNextPage = { viewModel.nextPage() }
+                    )
                 }
             }
         }

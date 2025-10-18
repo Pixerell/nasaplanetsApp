@@ -68,8 +68,18 @@ fun TopBar(
             }
         },
         actions = {
-            IconButton(onClick = onSearchToggle) { Icon(Icons.Filled.Search, contentDescription = "Search") }
-            IconButton(onClick = onFilterClick) { Icon(Icons.Filled.FilterList, contentDescription = "Filter") }
+            IconButton(onClick = onSearchToggle) {
+                Icon(
+                    Icons.Filled.Search,
+                    contentDescription = "Search"
+                )
+            }
+            IconButton(onClick = onFilterClick) {
+                Icon(
+                    Icons.Filled.FilterList,
+                    contentDescription = "Filter"
+                )
+            }
         },
         modifier = Modifier.fillMaxWidth()
     )
