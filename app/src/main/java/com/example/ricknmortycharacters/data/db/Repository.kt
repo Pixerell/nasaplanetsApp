@@ -16,52 +16,61 @@ class CharactersRepository(
 ) {
     suspend fun fetchPage(
         page: Int,
-        filter: String? = null,
-        name: String? = null
+        filter: CharacterFilter = CharacterFilter()
     ): PageResult = withContext(Dispatchers.IO) {
         try {
             val response = api.getCharacters(
                 page = page,
-                name = name,
-                status = filter
+                name = filter.name,
+                status = filter.status,
+                gender = filter.gender
             )
+
             val entitiesWithPage = response.results.map { it.copy(page = page) }
 
-            Log.d("Repo", "Fetched page=$page, ids=${entitiesWithPage.map { it.id }}")
+            Log.d("Repo", "Fetched page=$page, name=${filter.name}, status=${filter.status}, gender=${filter.gender}, ids=${entitiesWithPage.map { it.id }}")
 
             dao.insertAll(entitiesWithPage)
 
-            // debug
-            val count = dao.countByPage(page)
-            Log.d("Repo", "After insert: DB count for page=$page => $count")
-            val rows = dao.listIdAndPage()
-            Log.d("Repo", "DB rows after insert (id,page,name): ${rows.joinToString { "${it.id},${it.page},${it.name}" }}")
-
             PageResult(characters = entitiesWithPage, info = response.info)
         } catch (e: Exception) {
-            Log.w("Repo", "fetchPage failed for page=$page: ${e.message}")
+            Log.w("Repo", "fetchPage failed for page=$page, name=${filter.name}, status=${filter.status}, gender=${filter.gender}: ${e.message}")
 
-            // return cached page characters
-            val cached = dao.getCharactersByPage(page)
-            Log.d("Repo", "Returned cached for page=$page, cachedIds=${cached.map { it.id }}")
+            // Get ALL characters matching the filter
+            val allFilteredCharacters = dao.filter(
+                name = filter.name,
+                status = filter.status,
+                species = null,
+                gender = filter.gender,
+                type = null
+            )
 
-            val maxPage = dao.maxPage() ?: 0
-            val totalCount = dao.getAllCharactersFlow() // can't call Flow here for immediate value; use countByPage across pages
-            val pagesList = dao.distinctPages()
-            val pages = if (pagesList.isEmpty()) 0 else pagesList.maxOrNull() ?: pagesList.size
+            // Calculate pagination manually
+            val pageSize = 20
+            val totalCount = allFilteredCharacters.size
+            val totalPages = if (totalCount == 0) 0 else (totalCount + pageSize - 1) / pageSize
 
-            val fallbackInfo = if (pages > 0) {
-                Info(
-                    count = pagesList.sumOf { dao.countByPage(it) }, // optional accurate count
-                    pages = pages,
-                    next = null,
-                    prev = if (page > 1) (page - 1).toString() else null
-                )
-            } else null
+            // Get characters for current page
+            val startIndex = (page - 1) * pageSize
+            val endIndex = minOf(startIndex + pageSize, totalCount)
+            val cached = if (startIndex < totalCount) {
+                allFilteredCharacters
+                    .sortedBy { it.id } // Ensure consistent ordering
+                    .slice(startIndex until endIndex)
+            } else {
+                emptyList()
+            }
+
+            Log.d("Repo", "Returned cached: page=$page, name=${filter.name}, status=${filter.status}, gender=${filter.gender}, count=${cached.size}, total=$totalCount, totalPages=$totalPages")
+
+            val fallbackInfo = Info(
+                count = totalCount,
+                pages = totalPages,
+                next = if (page < totalPages) (page + 1).toString() else null,
+                prev = if (page > 1) (page - 1).toString() else null
+            )
 
             PageResult(characters = cached, info = fallbackInfo)
         }
     }
-
-    // ... other methods unchanged
 }

@@ -38,27 +38,25 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Launch coroutine to initialize DB and ViewModel off the main thread
         lifecycleScope.launch {
             val repository = withContext(Dispatchers.IO) {
                 val db = AppDatabase.getInstance(applicationContext)
                 val dao = db.characterDao()
                 CharactersRepository(RetrofitClient.api, dao)
             }
-
-            // Initialize ViewModel with factory
             viewModel = CharactersViewModelFactory(repository)
                 .create(CharactersViewModel::class.java)
 
             setContent {
                 val navController = rememberNavController()
 
-                // Theme state
                 var isDarkTheme by remember { mutableStateOf(false) }
                 val colors = if (isDarkTheme) darkColorScheme() else lightColorScheme()
                 var showFilters by remember { mutableStateOf(false) }
-                var activeFilter by remember { mutableStateOf<String?>(null) }
+
+                val searchQuery by viewModel.searchQuery.collectAsState()
+                val activeStatusFilter by viewModel.activeStatusFilter.collectAsState()
+                val activeGenderFilter by viewModel.activeGenderFilter.collectAsState()
 
                 LaunchedEffect(Unit) {
                     try {
@@ -77,7 +75,6 @@ class MainActivity : ComponentActivity() {
                                 navBackStackEntry?.destination?.route != CHARACTERROUTE
 
                             var isSearchActive by remember { mutableStateOf(false) }
-                            var searchQuery by remember { mutableStateOf("") }
 
                             TopBar(
                                 title = "Characters",
@@ -86,25 +83,26 @@ class MainActivity : ComponentActivity() {
                                 onThemeSwitchClick = { isDarkTheme = !isDarkTheme },
                                 isSearchActive = isSearchActive,
                                 searchQuery = searchQuery,
-                                onSearchToggle = { isSearchActive = !isSearchActive },
-                                onSearchChange = {
-                                    searchQuery = it
-                                    viewModel.fetch(name = it.ifBlank { null })
+                                onSearchToggle = {
+                                    isSearchActive = !isSearchActive
+                                    if (!isSearchActive) {
+                                        viewModel.clearSearchAndFilters()
+                                    }
+                                },
+                                onSearchChange = { query ->
+                                    viewModel.searchCharacters(query)
                                 },
                                 onFilterClick = { showFilters = true }
                             )
 
                             if (showFilters) {
                                 FilterSheet(
-                                    onSelect = { selected ->
-                                        activeFilter = selected
-                                        viewModel.fetch(
-                                            page = 1,
-                                            filter = selected,
-                                            name = if (searchQuery.isBlank()) null else searchQuery
-                                        )
+                                    onSelect = { status, gender ->
+                                        viewModel.applyFilter(status, gender)
                                         showFilters = false
                                     },
+                                    currentStatusFilter = activeStatusFilter,
+                                    currentGenderFilter = activeGenderFilter,
                                     onDismiss = { showFilters = false }
                                 )
                             }

@@ -36,3 +36,9 @@ data class LocationRef(
     val name: String,
     val url: String
 )
+
+data class CharacterFilter(
+    val status: String? = null,
+    val gender: String? = null,
+    val name: String? = null
+)
