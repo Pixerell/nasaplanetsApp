@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.ricknmortycharacters.data.db.CartoonCharacter
 import com.example.ricknmortycharacters.data.db.CharacterFilter
 import com.example.ricknmortycharacters.domain.CharactersRepository
+import com.example.ricknmortycharacters.domain.NetworkUtils
 import com.example.ricknmortycharacters.domain.PageResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -16,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class CharactersViewModel @Inject constructor(
-    private val repository: CharactersRepository
+    private val repository: CharactersRepository,
+    private val networkUtils: NetworkUtils
 ) : ViewModel() {
 
     private val _characters = MutableStateFlow<List<CartoonCharacter>>(emptyList())
@@ -108,5 +110,9 @@ class CharactersViewModel @Inject constructor(
         _characters.value = result.characters
         _currentPage.value = page
         result.info?.pages?.let { _totalPages.value = it }
+    }
+
+    fun isOnline(): Boolean {
+        return networkUtils.isOnline()
     }
 }
